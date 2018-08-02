@@ -25,6 +25,8 @@ phoneFields = ["Primary Phone", "Home Phone", "Home Phone 2", "Mobile Phone"]
 emailFields = ["E-mail Address", "E-mail 2 Address", "E-mail 3 Address"]
 contactFields = phoneFields + emailFields
 
+streetFields = ["Home Street", "Home Street 2", "Home Street 3"]
+
 with open(inputFilename, "r") as inFile, open(passFilename, "w") as passFile, open(failFilename, "w") as failFile:
     inCSV = csv.DictReader(inFile)
     passCSV = csv.DictWriter(passFile, fieldnames = outputFields, extrasaction="ignore")
@@ -34,6 +36,7 @@ with open(inputFilename, "r") as inFile, open(passFilename, "w") as passFile, op
     failCSV.writeheader()
 
     for row in inCSV:
+        process.stripCR(inCSV.fieldnames, row)
         process.validatePhone(phoneFields, row)
 
         #check if all name fields are empty, fail them if they are
@@ -51,5 +54,11 @@ with open(inputFilename, "r") as inFile, open(passFilename, "w") as passFile, op
         process.stripNotes(nameFields, row)
         row["Primary Email"] = process.extractFirstField(emailFields, row)
         row["Primary Phone"] = process.extractFirstField(phoneFields, row)
+
+        row["Street"] = process.extractFirstField(streetFields, row)
+        row["city"] = row["Home City"]
+        row["State"] = row["Home State"]
+        row["Postal Code"] = row["Home Postal Code"]
+        row["County"] = row["Home Country"]
 
         passCSV.writerow(row)

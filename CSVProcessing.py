@@ -38,3 +38,7 @@ def validatePhone(fields, row):
                 row["Notes"] += "\nINVALID PHONE: " + row[field]
             row[field] = ''
 
+#Remove extra carriage return
+def stripCR(fields, row):
+    for field in fields:
+        row[field] = re.sub(r'_x000D_', '', row[field])
