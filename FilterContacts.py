@@ -27,13 +27,15 @@ contactFields = phoneFields + emailFields
 
 with open(inputFilename, "r") as inFile, open(passFilename, "w") as passFile, open(failFilename, "w") as failFile:
     inCSV = csv.DictReader(inFile)
-    passCSV = csv.DictWriter(passFile, fieldnames = outputFields)
-    failCSV = csv.DictWriter(failFile, fieldnames = inCSV.fieldnames)
+    passCSV = csv.DictWriter(passFile, fieldnames = outputFields, extrasaction="ignore")
+    failCSV = csv.DictWriter(failFile, fieldnames = inCSV.fieldnames, extrasaction="ignore")
 
     passCSV.writeheader()
     failCSV.writeheader()
 
     for row in inCSV:
+        process.validatePhone(phoneFields, row)
+
         #check if all name fields are empty, fail them if they are
         if(process.checkEmptyFields(nameFields, row)):
             row["Notes"] += "\n(FAIL) NO NAME DATA"
@@ -45,3 +47,9 @@ with open(inputFilename, "r") as inFile, open(passFilename, "w") as passFile, op
             row["Notes"] += "\n(FAIL) NO CONTACT DATA"
             failCSV.writerow(row)
             continue
+
+        process.stripNotes(nameFields, row)
+        row["Primary Email"] = process.extractFirstField(emailFields, row)
+        row["Primary Phone"] = process.extractFirstField(phoneFields, row)
+
+        passCSV.writerow(row)
